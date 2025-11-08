@@ -14,8 +14,8 @@ import { fileURLToPath } from "url";
 import { connectDB } from "./lib/db.js";
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const PORT = process.env.PORT || 3500;
+const __dirname = path.resolve();
+const PORT = process.env.PORT;
 
 app.use(cors(corsOptions));
 app.use(cookieParser());
@@ -24,6 +24,12 @@ app.use(express.json({ limit: "10mb" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/build")));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend", "build", "index.html"));
+  });
+}
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
   next();
