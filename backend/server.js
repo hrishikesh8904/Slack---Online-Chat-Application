@@ -28,7 +28,7 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
   next();
 });
-app.use(errorHandler);
+
 if (process.env.NODE_ENV === "production") {
   const frontendPath = path.join(__dirname, "../frontend/build");
   console.log("✅ Serving static files from:", frontendPath);
@@ -51,7 +51,7 @@ app.use((req, res) => {
     res.json({ message: "404 Not Found" });
   }
 });
-
+app.use(errorHandler);
 server.listen(PORT, () => {
   console.log(`Server Listening on ${PORT}`);
   connectDB();
