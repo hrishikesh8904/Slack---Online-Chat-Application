@@ -2,8 +2,8 @@ import axios from "axios";
 
 export const axiosInstance = axios.create({
   baseURL:
-    import.meta.env.MODE === "development"
+    process.env.NODE_ENV === "development"
       ? "http://localhost:3500/api"
-      : "/api",
+      : process.env.REACT_APP_API_URL,
   withCredentials: true,
 });
