@@ -6,7 +6,8 @@ import { io } from "socket.io-client";
 const BASE_URL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3500"
-    : process.env.REACT_APP_API_URL;
+    : process.env.REACT_APP_API_URL ||
+      "https://slack-online-chat-application-4.onrender.com";
 // : `${process.env.REACT_APP_API_URL}/api`;
 
 export const useAuthStore = create((set, get) => ({
@@ -86,26 +87,55 @@ export const useAuthStore = create((set, get) => ({
   connectSocket: () => {
     const { authUser } = get();
     if (!authUser || get().socket?.connected) return;
+    if (get().socket) {
+      get().socket.disconnect();
+    }
     const socket = io(BASE_URL, {
       query: {
         userId: authUser._id,
       },
       withCredentials: true,
-      transports:["websocket"],
-      secure:"true",
-    });
-    socket.connect();
-    set({ socket: socket });
-    socket.on("getOnlineUser", (userIds) => {
-      set({ onlineUsers: userIds });
+      transports: ["websocket", "polling"],
+      secure: "true",
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5,
+      reconnectionDelayMax: 5000,
+      timeout: 20000,
     });
     socket.on("connect", () => {
       console.log("✅ Socket connected:", socket.id);
     });
 
-    socket.on("disconnect", () => {
-      console.log("❌ Socket disconnected");
+    socket.on("disconnect", (reason) => {
+      console.log("❌ Socket disconnected:", reason);
+      if (reason === "io server disconnect") {
+        // Server disconnected the socket, reconnect manually
+        socket.connect();
+      }
     });
+
+    socket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error);
+    });
+
+    socket.on("getOnlineUser", (userIds) => {
+      set({ onlineUsers: userIds });
+    });
+
+    set({ socket: socket });
+    // socket.connect();
+    // set({ socket: socket });
+    // socket.on("getOnlineUser", (userIds) => {
+    //   set({ onlineUsers: userIds });
+    // });
+    // socket.on("connect", () => {
+    //   console.log("✅ Socket connected:", socket.id);
+    // });
+
+    // socket.on("disconnect", () => {
+    //   console.log("❌ Socket disconnected");
+    // });
   },
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();

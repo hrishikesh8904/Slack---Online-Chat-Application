@@ -55,13 +55,24 @@ export const useChatStore = create((set, get) => ({
     if (!selectedUser) return;
 
     const socket = useAuthStore.getState().socket;
+    if (!socket || !socket.connected) {
+      console.warn("Socket not connected, cannot subscribe to messages");
+      return;
+    }
+
+    // Remove existing listener to prevent duplicates
+    socket.off("newMessage");
     socket.on("newMessage", (data) => {
-      if (data.senderId !== selectedUser._id) return;
+      const senderId = String(data.senderId || data.senderId?._id || "");
+      const selectedUserId = String(selectedUser._id || "");
+      if (senderId !== selectedUserId) return;
       set({ messages: [...get().messages, data] });
     });
   },
   unsubscribeToMessages: () => {
     const socket = useAuthStore.getState().socket;
-    socket.off("newMessage");
+    if (socket) {
+      socket.off("newMessage");
+    }
   },
 }));
