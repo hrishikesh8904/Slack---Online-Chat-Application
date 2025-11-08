@@ -38,6 +38,11 @@ if (process.env.NODE_ENV === "production") {
   app.get(/^\/(?!api).*/, (req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));
   });
+  setInterval(() => {
+    fetch("https://slack-online-chat-application-4.onrender.com").catch(
+      () => {}
+    );
+  }, 300000);
 }
 // app.use(express.static(path.join(__dirname, "../frontend/build")));
 // app.get("/:userId", (req, res) => {
