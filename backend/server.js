@@ -28,6 +28,17 @@ app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
   next();
 });
+app.use(errorHandler);
+if (process.env.NODE_ENV === "production") {
+  const frontendPath = path.join(__dirname, "../frontend/build");
+  console.log("✅ Serving static files from:", frontendPath);
+
+  app.use(express.static(frontendPath));
+
+  app.get(/^\/(?!api).*/, (req, res) => {
+    res.sendFile(path.join(frontendPath, "index.html"));
+  });
+}
 // app.use(express.static(path.join(__dirname, "../frontend/build")));
 // app.get("/:userId", (req, res) => {
 //   res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
@@ -40,17 +51,7 @@ app.use((req, res) => {
     res.json({ message: "404 Not Found" });
   }
 });
-app.use(errorHandler);
-if (process.env.NODE_ENV === "production") {
-  const frontendPath = path.join(__dirname, "../frontend/build");
-  console.log("✅ Serving static files from:", frontendPath);
 
-  app.use(express.static(frontendPath));
-
-  app.get(/^\/(?!api).*/, (req, res) => {
-    res.sendFile(path.join(frontendPath, "index.html"));
-  });
-}
 server.listen(PORT, () => {
   console.log(`Server Listening on ${PORT}`);
   connectDB();
