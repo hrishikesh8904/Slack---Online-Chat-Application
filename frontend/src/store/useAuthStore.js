@@ -6,7 +6,8 @@ import { io } from "socket.io-client";
 const BASE_URL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3500"
-    : `${process.env.REACT_APP_API_URL}/api`;
+    : window.location.origin;
+// : `${process.env.REACT_APP_API_URL}/api`;
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
