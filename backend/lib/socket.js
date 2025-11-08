@@ -7,10 +7,23 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost:3000",
-      "https://slack-online-chat-application-4.onrender.com",
-    ],
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        "http://localhost:3000",
+        "https://slack-online-chat-application-4.onrender.com",
+      ];
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(null, true); // Allow all origins in production, or be more restrictive
+      }
+    },
+    // origin: [
+    //   "http://localhost:3000",
+    //   "https://slack-online-chat-application-4.onrender.com",
+    // ],
     methods: ["GET", "POST"],
     credentials: true,
   },
