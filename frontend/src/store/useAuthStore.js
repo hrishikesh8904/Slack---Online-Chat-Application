@@ -6,7 +6,7 @@ import { io } from "socket.io-client";
 const BASE_URL =
   process.env.NODE_ENV === "development"
     ? "http://localhost:3500"
-    : window.location.origin;
+    : process.env.REACT_APP_API_URL;
 // : `${process.env.REACT_APP_API_URL}/api`;
 
 export const useAuthStore = create((set, get) => ({
@@ -90,11 +90,19 @@ export const useAuthStore = create((set, get) => ({
       query: {
         userId: authUser._id,
       },
+      withCredentials: true,
     });
     socket.connect();
     set({ socket: socket });
     socket.on("getOnlineUser", (userIds) => {
       set({ onlineUsers: userIds });
+    });
+    socket.on("connect", () => {
+      console.log("✅ Socket connected:", socket.id);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("❌ Socket disconnected");
     });
   },
   disconnectSocket: () => {

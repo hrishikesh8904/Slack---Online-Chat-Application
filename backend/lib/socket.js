@@ -11,6 +11,7 @@ const io = new Server(server, {
       "http://localhost:3000",
       "https://slack-online-chat-application-4.onrender.com",
     ],
+    methods: ["GET","POST"],
     credentials: true,
   },
 });
@@ -28,6 +29,22 @@ io.on("connection", (socket) => {
   io.emit("getOnlineUser", Object.keys(userSocketMap));
   socket.on("disconnect", () => {
     console.log("A user disconnected", socket.id);
+    delete userSocketMap[userId];
+    io.emit("getOnlineUser", Object.keys(userSocketMap));
+  });
+});
+io.on("connection", (socket) => {
+  console.log("✅ A user connected:", socket.id);
+
+  const userId = socket.handshake.query.userId;
+  if (userId) {
+    userSocketMap[userId] = socket.id;
+  }
+
+  io.emit("getOnlineUser", Object.keys(userSocketMap));
+
+  socket.on("disconnect", () => {
+    console.log("❌ A user disconnected:", socket.id);
     delete userSocketMap[userId];
     io.emit("getOnlineUser", Object.keys(userSocketMap));
   });
