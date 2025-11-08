@@ -14,7 +14,7 @@ import { fileURLToPath } from "url";
 import { connectDB } from "./lib/db.js";
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.resolve();
+const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT;
 
 app.use(cors(corsOptions));
