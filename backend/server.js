@@ -25,14 +25,16 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
 if (process.env.NODE_ENV === "production") {
-  const frontendPath = path.join(path.resolve(), "frontend", "build");
-  console.log("Serving static files from:", frontendPath);
+  const frontendPath = path.join(__dirname, "../frontend/build");
+  console.log("✅ Serving static files from:", frontendPath);
+
   app.use(express.static(frontendPath));
 
   app.get("*", (req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));
   });
 }
+
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.path}`);
   next();
